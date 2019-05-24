@@ -14,12 +14,10 @@ class TextProposalDetector:
 
     def detect(self, im, mean):
         im_data=prepare_img(im, mean)
-        print "dd1"
         _=self.caffe_model.forward2({
             "data": im_data[np.newaxis, :],
             "im_info": np.array([[im_data.shape[1], im_data.shape[2]]], np.float32)
         })
-	print "dd2"
         rois=self.caffe_model.blob("rois")
         scores=self.caffe_model.blob("scores")
         return rois, scores
@@ -38,19 +36,14 @@ class TextDetector:
         Detecting texts from an image
         :return: the bounding boxes of the detected texts
         """
-        print "start"
         text_proposals, scores=self.text_proposal_detector.detect(im, cfg.MEAN)
-        print "000"
         keep_inds=np.where(scores>cfg.TEXT_PROPOSALS_MIN_SCORE)[0]
         text_proposals, scores=text_proposals[keep_inds], scores[keep_inds]
-       	print 111
         sorted_indices=np.argsort(scores.ravel())[::-1]
         text_proposals, scores=text_proposals[sorted_indices], scores[sorted_indices]
-        print 222
         # nms for text proposals
         keep_inds=nms(np.hstack((text_proposals, scores)), cfg.TEXT_PROPOSALS_NMS_THRESH)
         text_proposals, scores=text_proposals[keep_inds], scores[keep_inds]
-        print 333
         scores=normalize(scores)
 
         text_lines=self.text_proposal_connector.get_text_lines(text_proposals, scores, im.shape[:2])

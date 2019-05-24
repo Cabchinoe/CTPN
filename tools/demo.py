@@ -24,7 +24,7 @@ import cv2, os, caffe, sys
 from detectors import TextProposalDetector, TextDetector
 import os.path as osp
 from utils.timer import Timer
-
+from PIL import Image
 DEMO_IMAGE_DIR="demo_images/"
 NET_DEF_FILE="models/deploy.prototxt"
 MODEL_FILE="models/ctpn_trained_model.caffemodel"
@@ -59,6 +59,9 @@ for im_name in demo_imnames:
     print "Time: %f"%timer.toc()
 
     im_with_text_lines=draw_boxes(im, text_lines, caption=im_name, wait=False)
+    im_with_text_lines = cv2.cvtColor(im_with_text_lines,cv2.COLOR_BGR2RGB)
+    Image.fromarray(im_with_text_lines).save('./res/'+im_name)
+
 
 print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 print "Thank you for trying our demo. Press any key to exit..."

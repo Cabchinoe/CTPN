@@ -1,5 +1,4 @@
 *.pyc
-*.caffemodel
 .idea
 *.so
 results

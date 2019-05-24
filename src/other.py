@@ -91,7 +91,6 @@ class CaffeModel:
         for k, v in input_data.items():
             self.net.blobs[k].reshape(*v.shape)
             self.net.blobs[k].data[...]=v
-        print 'net forward'
         return self.net.forward()
 
     def net_def_file(self):
