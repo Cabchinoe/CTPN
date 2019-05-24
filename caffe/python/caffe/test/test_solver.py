@@ -16,7 +16,8 @@ class TestSolver(unittest.TestCase):
         f.write("""net: '""" + net_f + """'
         test_iter: 10 test_interval: 10 base_lr: 0.01 momentum: 0.9
         weight_decay: 0.0005 lr_policy: 'inv' gamma: 0.0001 power: 0.75
-        display: 100 max_iter: 100 snapshot_after_train: false""")
+        display: 100 max_iter: 100 snapshot_after_train: false
+        snapshot_prefix: "model" """)
         f.close()
         self.solver = caffe.SGDSolver(f.name)
         # also make sure get_solver runs
@@ -37,6 +38,17 @@ class TestSolver(unittest.TestCase):
         self.solver.solve()
         self.assertEqual(self.solver.iter, 100)
 
+    def test_apply_update(self):
+        net = self.solver.net
+        data = net.layers[1].blobs[0].data[...]
+        # Reset the weights of that layer to 0
+        data[...] = 0
+        net.layers[1].blobs[0].diff[...] = 1
+        # Apply the update, the initial learning rate should be 0.01
+        self.solver.apply_update()
+        # Check that the new weights are -0.01, with a precision of 1e-7
+        self.assertTrue((data - -0.01 * np.ones(data.shape)).max() < 1e-7)
+
     def test_net_memory(self):
         """Check that nets survive after the solver is destroyed."""
 
@@ -51,3 +63,11 @@ class TestSolver(unittest.TestCase):
                     total += p.data.sum() + p.diff.sum()
             for bl in six.itervalues(net.blobs):
                 total += bl.data.sum() + bl.diff.sum()
+
+    def test_snapshot(self):
+        self.solver.snapshot()
+        # Check that these files exist and then remove them
+        files = ['model_iter_0.caffemodel', 'model_iter_0.solverstate']
+        for fn in files:
+            assert os.path.isfile(fn)
+            os.remove(fn)

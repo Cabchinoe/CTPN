@@ -9,7 +9,7 @@
 # This module defines the following variables:
 #
 #   MKL_FOUND            : True mkl is found
-#   MKL_INCLUDE_DIR      : unclude directory
+#   MKL_INCLUDE_DIR      : include directory
 #   MKL_LIBRARIES        : the libraries to link against.
 
 
@@ -20,7 +20,7 @@ caffe_option(MKL_MULTI_THREADED  "Use multi-threading"   ON IF NOT MKL_USE_SINGL
 
 # ---[ Root folders
 set(INTEL_ROOT "/opt/intel" CACHE PATH "Folder contains intel libs")
-find_path(MKL_ROOT include/mkl.h PATHS $ENV{MKL_ROOT} ${INTEL_ROOT}/mkl
+find_path(MKL_ROOT include/mkl.h PATHS $ENV{MKLROOT} ${INTEL_ROOT}/mkl
                                    DOC "Folder contains MKL")
 
 # ---[ Find include dir

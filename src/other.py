@@ -11,7 +11,7 @@ def prepare_img(im, mean):
     return im_data
 
 
-def draw_boxes(im, bboxes, is_display=True, color=None, caption="Image", wait=True):
+def draw_boxes(im, bboxes, is_display=False, color=None, caption="Image", wait=True):
     """
         boxes: bounding boxes
     """
@@ -91,6 +91,7 @@ class CaffeModel:
         for k, v in input_data.items():
             self.net.blobs[k].reshape(*v.shape)
             self.net.blobs[k].data[...]=v
+        print 'net forward'
         return self.net.forward()
 
     def net_def_file(self):

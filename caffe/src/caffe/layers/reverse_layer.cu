@@ -1,4 +1,4 @@
-#include "caffe/common_layers.hpp"
+#include "caffe/layers/reverse_layer.hpp"
 
 namespace caffe {
 

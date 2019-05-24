@@ -52,6 +52,7 @@ for im_name in demo_imnames:
     timer.tic()
 
     im, f=resize_im(im, cfg.SCALE, cfg.MAX_SCALE)
+    print "re_im"
     text_lines=text_detector.detect(im)
 
     print "Number of the detected text lines: %s"%len(text_lines)

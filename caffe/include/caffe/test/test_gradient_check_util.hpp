@@ -38,9 +38,7 @@ class GradientChecker {
   void CheckGradientExhaustive(Layer<Dtype>* layer,
       const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top,
       int check_bottom = -1);
-   void CheckGradientExhaustive(Layer<Dtype>* layer,
-    const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top,
-    int check_bottom, int check_top);
+
   // CheckGradientEltwise can be used to test layers that perform element-wise
   // computation only (e.g., neuron layers) -- where (d y_i) / (d x_j) = 0 when
   // i != j.
@@ -171,8 +169,9 @@ void GradientChecker<Dtype>::CheckGradientSingle(Layer<Dtype>* layer,
           || fabs(feature) > kink_ + kink_range_) {
         // We check relative accuracy, but for too small values, we threshold
         // the scale factor by 1.
-        Dtype scale = std::max(
-            std::max(fabs(computed_gradient), fabs(estimated_gradient)), 1.);
+        Dtype scale = std::max<Dtype>(
+            std::max(fabs(computed_gradient), fabs(estimated_gradient)),
+            Dtype(1.));
         EXPECT_NEAR(computed_gradient, estimated_gradient, threshold_ * scale)
           << "debug: (top_id, top_data_id, blob_id, feat_id)="
           << top_id << "," << top_data_id << "," << blob_id << "," << feat_id
@@ -200,17 +199,6 @@ void GradientChecker<Dtype>::CheckGradientExhaustive(Layer<Dtype>* layer,
       // LOG(ERROR) << "Exhaustive: blob " << i << " data " << j;
       CheckGradientSingle(layer, bottom, top, check_bottom, i, j);
     }
-  }
-}
-
-template <typename Dtype>
-void GradientChecker<Dtype>::CheckGradientExhaustive(Layer<Dtype>* layer,
-    const vector<Blob<Dtype>*>& bottom, const vector<Blob<Dtype>*>& top,
-    int check_bottom, int check_top) {
-  layer->SetUp(bottom, top);
-  CHECK_GT(top.size(), 0) << "Exhaustive mode requires at least one top blob.";
-  for (int j = 0; j < top[check_top]->count(); ++j) {
-    CheckGradientSingle(layer, bottom, top, check_bottom, check_top, j);
   }
 }
 

@@ -1,12 +1,10 @@
+#ifdef USE_HDF5
 #include <vector>
 
 #include "hdf5.h"
 #include "hdf5_hl.h"
 
-#include "caffe/blob.hpp"
-#include "caffe/common.hpp"
-#include "caffe/layer.hpp"
-#include "caffe/vision_layers.hpp"
+#include "caffe/layers/hdf5_output_layer.hpp"
 
 namespace caffe {
 
@@ -40,3 +38,4 @@ void HDF5OutputLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
 INSTANTIATE_LAYER_GPU_FUNCS(HDF5OutputLayer);
 
 }  // namespace caffe
+#endif  // USE_HDF5

@@ -7,7 +7,8 @@ from anchor import AnchorText
 class ProposalLayer(caffe.Layer):
     def setup(self, bottom, top):
         # parse the layer parameter string, which must be valid YAML
-        layer_params = yaml.load(self.param_str_)
+        #layer_params = yaml.load(self.param_str_)
+	layer_params = yaml.load(self.param_str)
 
         self._feat_stride = layer_params['feat_stride']
         self.anchor_generator=AnchorText()

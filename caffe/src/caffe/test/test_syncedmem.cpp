@@ -1,4 +1,3 @@
-#include <cstring>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -81,7 +80,7 @@ TEST_F(SyncedMemoryTest, TestGPURead) {
   char* recovered_value = new char[10];
   caffe_gpu_memcpy(10, gpu_data, recovered_value);
   for (int i = 0; i < mem.size(); ++i) {
-    EXPECT_EQ((static_cast<char*>(recovered_value))[i], 1);
+    EXPECT_EQ(recovered_value[i], 1);
   }
   // do another round
   cpu_data = mem.mutable_cpu_data();
@@ -95,7 +94,7 @@ TEST_F(SyncedMemoryTest, TestGPURead) {
   // check if values are the same
   caffe_gpu_memcpy(10, gpu_data, recovered_value);
   for (int i = 0; i < mem.size(); ++i) {
-    EXPECT_EQ((static_cast<char*>(recovered_value))[i], 2);
+    EXPECT_EQ(recovered_value[i], 2);
   }
   delete[] recovered_value;
 }

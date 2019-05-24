@@ -32,6 +32,22 @@ void caffe_cpu_gemm<double>(const CBLAS_TRANSPOSE TransA,
 }
 
 template <>
+void caffe_bound(const int N, const float* a, const float min, 
+    const float max, float* y) {
+  for (int i = 0; i < N; ++i) {
+    y[i] = std::min(std::max(a[i], min), max);
+  }
+}
+
+template <>
+void caffe_bound(const int N, const double* a, const double min, 
+    const double max, double* y) {
+  for (int i = 0; i < N; ++i) {
+    y[i] = std::min(std::max(a[i], min), max);
+  }
+}
+
+template <>
 void caffe_cpu_gemv<float>(const CBLAS_TRANSPOSE TransA, const int M,
     const int N, const float alpha, const float* A, const float* x,
     const float beta, float* y) {
@@ -197,6 +213,16 @@ void caffe_sqr<double>(const int n, const double* a, double* y) {
 }
 
 template <>
+void caffe_sqrt<float>(const int n, const float* a, float* y) {
+  vsSqrt(n, a, y);
+}
+
+template <>
+void caffe_sqrt<double>(const int n, const double* a, double* y) {
+  vdSqrt(n, a, y);
+}
+
+template <>
 void caffe_exp<float>(const int n, const float* a, float* y) {
   vsExp(n, a, y);
 }
@@ -224,91 +250,6 @@ void caffe_abs<float>(const int n, const float* a, float* y) {
 template <>
 void caffe_abs<double>(const int n, const double* a, double* y) {
     vdAbs(n, a, y);
-}
-
-template <typename Dtype>
-inline Dtype sigmoid(Dtype x) {
-  return 1. / (1. + exp(-x));
-}
-
-template <>
-void caffe_sigmoid(const int N, const float* x, float* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = sigmoid(x[i]);
-  }
-}
-
-template <>
-void caffe_sigmoid(const int N, const double* x, double* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = sigmoid(x[i]);
-  }
-}
-
-template <>
-void caffe_sigmoid_diff(const int N, const float* y, const float* y_diff, 
-    float* x_diff) {
-  for (int i = 0; i < N; ++i) {
-    const float sigmoid_x = y[i];
-    x_diff[i] = y_diff[i] * sigmoid_x * (1. - sigmoid_x);
-  }
-}
-
-template <>
-void caffe_sigmoid_diff(const int N, const double* y, const double* y_diff, 
-    double* x_diff) {
-  for (int i = 0; i < N; ++i) {
-    const double sigmoid_x = y[i];
-    x_diff[i] = y_diff[i] * sigmoid_x * (1. - sigmoid_x);
-  }
-}
-
-template <>
-void caffe_tanh(const int N, const float* x, float* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = tanh(x[i]);
-  }
-}
-
-template <>
-void caffe_tanh(const int N, const double* x, double* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = tanh(x[i]);
-  }
-}
-
-template <>
-void caffe_tanh_diff(const int N, const float* y, const float* y_diff, 
-    float* x_diff) {
-  for (int i = 0; i < N; ++i) {
-    const float tanh_x = y[i];
-    x_diff[i] = y_diff[i] * (1. - tanh_x * tanh_x);
-  }
-}
-
-template <>
-void caffe_tanh_diff(const int N, const double* y, const double* y_diff, 
-    double* x_diff) {
-  for (int i = 0; i < N; ++i) {
-    const double tanh_x = y[i];
-    x_diff[i] = y_diff[i] * (1. - tanh_x * tanh_x);
-  }
-}
-
-template <>
-void caffe_bound(const int N, const float* a, const float min, 
-    const float max, float* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = std::min(std::max(a[i], min), max);
-  }
-}
-
-template <>
-void caffe_bound(const int N, const double* a, const double min, 
-    const double max, double* y) {
-  for (int i = 0; i < N; ++i) {
-    y[i] = std::min(std::max(a[i], min), max);
-  }
 }
 
 unsigned int caffe_rng_rand() {
@@ -432,28 +373,6 @@ float caffe_cpu_dot<float>(const int n, const float* x, const float* y);
 
 template
 double caffe_cpu_dot<double>(const int n, const double* x, const double* y);
-
-template <>
-int caffe_cpu_hamming_distance<float>(const int n, const float* x,
-                                  const float* y) {
-  int dist = 0;
-  for (int i = 0; i < n; ++i) {
-    dist += __builtin_popcount(static_cast<uint32_t>(x[i]) ^
-                               static_cast<uint32_t>(y[i]));
-  }
-  return dist;
-}
-
-template <>
-int caffe_cpu_hamming_distance<double>(const int n, const double* x,
-                                   const double* y) {
-  int dist = 0;
-  for (int i = 0; i < n; ++i) {
-    dist += __builtin_popcountl(static_cast<uint64_t>(x[i]) ^
-                                static_cast<uint64_t>(y[i]));
-  }
-  return dist;
-}
 
 template <>
 float caffe_cpu_asum<float>(const int n, const float* x) {
