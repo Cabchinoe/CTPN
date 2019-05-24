@@ -58,7 +58,7 @@ for im_name in demo_imnames:
     print "Number of the detected text lines: %s"%len(text_lines)
     print "Time: %f"%timer.toc()
 
-    im_with_text_lines=draw_boxes(im, text_lines, caption=im_name, wait=False)
+    _,im_with_text_lines=draw_boxes(im, text_lines, caption=im_name, wait=False)
     im_with_text_lines = cv2.cvtColor(im_with_text_lines,cv2.COLOR_BGR2RGB)
     Image.fromarray(im_with_text_lines).save('./res/'+im_name)
 

@@ -15,21 +15,66 @@ def draw_boxes(im, bboxes, is_display=False, color=None, caption="Image", wait=T
     """
         boxes: bounding boxes
     """
+    text_recs=np.zeros((len(bboxes), 8), np.int)
+
     im=im.copy()
+    index = 0
     for box in bboxes:
         if color==None:
-            if len(box)==5 or len(box)==9:
+            if len(box)==8 or len(box)==9:
                 c=tuple(cm.jet([box[-1]])[0, 2::-1]*255)
             else:
                 c=tuple(np.random.randint(0, 256, 3))
         else:
             c=color
-        cv2.rectangle(im, tuple(box[:2]), tuple(box[2:4]), c)
+        
+        b1 = box[6] - box[7] / 2
+        b2 = box[6] + box[7] / 2
+        x1 = box[0]
+        y1 = box[5] * box[0] + b1
+        x2 = box[2]
+        y2 = box[5] * box[2] + b1
+        x3 = box[0]
+        y3 = box[5] * box[0] + b2
+        x4 = box[2]
+        y4 = box[5] * box[2] + b2
+        
+        disX = x2 - x1
+        disY = y2 - y1
+	width = np.sqrt(disX*disX + disY*disY)
+	fTmp0 = y3 - y1
+	fTmp1 = fTmp0 * disY / width
+	x = np.fabs(fTmp1*disX / width)
+	y = np.fabs(fTmp1*disY / width)
+        if box[5] < 0:
+           x1 -= x
+           y1 += y
+           x4 += x
+           y4 -= y
+        else:
+           x2 += x
+           y2 += y
+           x3 -= x
+           y3 -= y
+        cv2.line(im,(int(x1),int(y1)),(int(x2),int(y2)),c,2)
+        cv2.line(im,(int(x1),int(y1)),(int(x3),int(y3)),c,2)
+        cv2.line(im,(int(x4),int(y4)),(int(x2),int(y2)),c,2)
+        cv2.line(im,(int(x3),int(y3)),(int(x4),int(y4)),c,2)
+        text_recs[index, 0] = x1
+        text_recs[index, 1] = y1
+        text_recs[index, 2] = x2
+        text_recs[index, 3] = y2
+        text_recs[index, 4] = x3
+        text_recs[index, 5] = y3
+        text_recs[index, 6] = x4
+        text_recs[index, 7] = y4
+        index = index + 1
+        #cv2.rectangle(im, tuple(box[:2]), tuple(box[2:4]), c,2)  
     if is_display:
         cv2.imshow(caption, im)
         if wait:
             cv2.waitKey(0)
-    return im
+    return text_recs, im
 
 
 def threshold(coords, min_, max_):
@@ -95,3 +140,4 @@ class CaffeModel:
 
     def net_def_file(self):
         return self.net_def_file
+
